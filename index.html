@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Лабораторна робота №5: події JavaScript та перевірка форми регулярними виразами. Варіант 3.">
+    <title>Товстоп'ят О. О., ІО-42, Лаб. роб. №5, Варіант 3</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+    <script src="validation.js" defer></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header class="page-header">
+        <p class="eyebrow">Основи FE-технологій · Лабораторна робота №5</p>
+        <h1>Події. Регулярні вирази</h1>
+        <p>Товстоп'ят Олександр Олегович · ІО-42 · Варіант 3</p>
+    </header>
+    <main class="tasks">
+        <section class="card" aria-labelledby="form-title">
+            <p class="eyebrow">Завдання 1</p>
+            <h2 id="form-title">Перевірка даних</h2>
+            <p class="intro">Заповніть усі поля за зразками. Коректні дані відкриються в окремому вікні.</p>
+            <form id="data-form" novalidate>
+                <div class="form-row">
+                    <label for="fullName">ПІБ</label>
+                    <input id="fullName" name="fullName" type="text" placeholder="Петренко П.П."
+                        aria-describedby="fullName-hint fullName-error" required>
+                    <small id="fullName-hint">Прізвище та два великі ініціали з крапками.</small>
+                    <span class="error" id="fullName-error"></span>
+                </div>
+                <div class="form-row">
+                    <label for="phone">Телефон</label>
+                    <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="(000)-000-00-00"
+                        aria-describedby="phone-hint phone-error" required>
+                    <small id="phone-hint">Формат: (ЧЧЧ)-ЧЧЧ-ЧЧ-ЧЧ.</small>
+                    <span class="error" id="phone-error"></span>
+                </div>
+                <div class="form-row">
+                    <label for="idCard">ID-card</label>
+                    <input id="idCard" name="idCard" type="text" placeholder="АБ №123456"
+                        aria-describedby="idCard-hint idCard-error" required>
+                    <small id="idCard-hint">Дві великі літери, пробіл, № і шість цифр.</small>
+                    <span class="error" id="idCard-error"></span>
+                </div>
+                <div class="form-row">
+                    <label for="faculty">Факультет</label>
+                    <input id="faculty" name="faculty" type="text" placeholder="АБВГ"
+                        aria-describedby="faculty-hint faculty-error" required>
+                    <small id="faculty-hint">Рівно чотири великі літери.</small>
+                    <span class="error" id="faculty-error"></span>
+                </div>
+                <div class="form-row">
+                    <label for="birthDate">Дата народження</label>
+                    <input id="birthDate" name="birthDate" type="text" inputmode="numeric" placeholder="01.01.2000"
+                        aria-describedby="birthDate-hint birthDate-error" required>
+                    <small id="birthDate-hint">Формат: ДД.ММ.РРРР. Дата має існувати в календарі.</small>
+                    <span class="error" id="birthDate-error"></span>
+                </div>
+                <div class="actions">
+                    <button type="submit">Перевірити дані</button>
+                    <button type="reset" class="secondary">Очистити</button>
+                </div>
+                <p id="form-status" class="status" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <section class="card" aria-labelledby="table-title">
+            <p class="eyebrow">Завдання 2</p>
+            <h2 id="table-title">Події в таблиці</h2>
+            <p class="intro">Активна клітинка — <strong>3</strong>. Оберіть колір і перевірте три події миші.</p>
+            <label class="palette" for="color-picker">
+                <span>Колір із палітри</span>
+                <input id="color-picker" type="color" value="#2563eb">
+            </label>
+            <table id="color-table" aria-describedby="table-help">
+                <caption>Таблиця 6 × 6 · числа від 1 до 36</caption>
+                <tbody></tbody>
+            </table>
+            <ul class="event-guide" id="table-help">
+                <li><strong>Наведення</strong> — випадковий колір клітинки 3.</li>
+                <li><strong>Клік</strong> — колір клітинки 3 з палітри.</li>
+                <li><strong>Подвійний клік</strong> — головна діагональ кольором із палітри: 1, 8, 15, 22, 29, 36.</li>
+            </ul>
+            <p class="note">Подвійний клік також містить два одинарні: клітинка 3 теж отримує обраний колір.</p>
+            <p id="table-status" class="status" role="status" aria-live="polite"></p>
+        </section>
+    </main>
+    <footer>HTML · CSS · JavaScript · Без сторонніх бібліотек</footer>
+</body>
+</html>

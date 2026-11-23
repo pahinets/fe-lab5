@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uk">
+<meta charset="UTF-8">
+<title>ЛР5 — браузерні тести</title>
+<h1>Браузерні тести ЛР5</h1>
+<p>Запускати через локальний HTTP-сервер. Перевірки працюють із реальною сторінкою в iframe.</p>
+<pre id="results">Виконання…</pre>
+<iframe id="page" src="../index.html" title="Сторінка лабораторної" width="1100" height="850"></iframe>
+<script>
+const frame = document.getElementById('page');
+frame.addEventListener('load', () => {
+    const results = [];
+    const win = frame.contentWindow;
+    const doc = frame.contentDocument;
+    const check = (condition, message) => {
+        if (!condition) throw new Error(message);
+        results.push('PASS: ' + message);
+    };
+    const submit = () => doc.getElementById('data-form').requestSubmit();
+    const event = (element, type) => element.dispatchEvent(new win.MouseEvent(type, { bubbles: true }));
+    let openedDocument;
+    const originalOpen = win.open;
+    try {
+        const form = doc.getElementById('data-form');
+        check(Boolean(form), 'Форма існує');
+        win.open = () => { throw new Error('Не можна відкривати вікно для невалідних даних'); };
+        submit();
+        check(doc.querySelectorAll('[aria-invalid="true"]').length === 5, 'Порожня форма: усі 5 полів позначені');
+        check(doc.activeElement.id === 'fullName', 'Фокус переходить до першої помилки');
+        const fields = {
+            fullName: 'Петренко П.П.', phone: '(000)-000-00-00',
+            idCard: 'АБ №123456', faculty: 'АБВГ', birthDate: '01.01.2000'
+        };
+        for (const [id, value] of Object.entries(fields)) {
+            const input = doc.getElementById(id);
+            input.value = value;
+            input.dispatchEvent(new win.Event('input', { bubbles: true }));
+        }
+        check(doc.querySelectorAll('[aria-invalid="true"]').length === 0, 'Виправлення знімає помилки');
+        win.open = () => {
+            openedDocument = document.implementation.createHTMLDocument('');
+            return { document: openedDocument, focus() {}, opener: win };
+        };
+        submit();
+        check(openedDocument?.body.textContent.includes('Петренко П.П.'), 'Коректний ПІБ виведено в окремий документ');
+        check(openedDocument.title === 'ЛР5 — введені дані', 'Вікно результату має змістовний заголовок');
+        check(openedDocument.querySelectorAll('dd').length === 5, 'У результаті виведено всі 5 значень');
+        check(openedDocument.querySelectorAll('script').length === 0, 'Результат не містить виконуваного коду');
+        win.open = () => null;
+        submit();
+        check(doc.getElementById('form-status').textContent.includes('заблок'), 'Блокування popup пояснюється користувачу');
+        doc.getElementById('birthDate').value = '31.04.2000';
+        submit();
+        check(doc.getElementById('birthDate').getAttribute('aria-invalid') === 'true', 'Неможлива дата відхиляється');
+        form.reset();
+        check(doc.querySelectorAll('[aria-invalid="true"]').length === 0, 'Скидання очищає помилки');
+        check(doc.getElementById('form-status').textContent === '', 'Скидання очищає статус');
+
+        const cells = Array.from(doc.querySelectorAll('#color-table td'));
+        check(cells.length === 36 && cells.every((cell, i) => cell.textContent === String(i + 1)), 'Таблиця містить числа 1–36 по рядках');
+        const target = cells[2];
+        check(target.getAttribute('role') === 'button' && target.tabIndex === 0
+            && target.getAttribute('aria-label').includes('3'), 'Клітинка 3 має доступну роль кнопки, номер і фокус');
+        const before = target.style.backgroundColor;
+        event(target, 'mouseenter');
+        check(target.style.backgroundColor !== '' && target.style.backgroundColor !== before, 'Наведення зафарбовує клітинку 3');
+        const picker = doc.getElementById('color-picker');
+        picker.value = '#123456';
+        event(target, 'click');
+        check(target.style.backgroundColor === 'rgb(18, 52, 86)', 'Клік використовує колір палітри');
+        event(cells[1], 'mouseenter');
+        event(cells[1], 'click');
+        event(cells[1], 'dblclick');
+        check(cells[1].style.backgroundColor === '', 'Інша клітинка не реагує на події');
+        event(target, 'dblclick');
+        const colored = cells.filter(cell => cell.style.backgroundColor === 'rgb(18, 52, 86)').map(cell => Number(cell.textContent));
+        check(JSON.stringify(colored) === '[1,3,8,15,22,29,36]', 'Подвійний клік зафарбовує лише головну діагональ; клітинка 3 зберігає колір');
+        picker.value = '#ffffff';
+        target.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        check(target.style.backgroundColor === 'rgb(255, 255, 255)' && target.style.color === 'rgb(0, 0, 0)', 'Enter зафарбовує клітинку; на білому фоні текст чорний');
+        picker.value = '#000000';
+        target.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true }));
+        check(cells[35].style.backgroundColor === 'rgb(0, 0, 0)' && cells[35].style.color === 'rgb(255, 255, 255)', 'Shift+Enter зафарбовує діагональ; на чорному фоні текст білий');
+        window.testResult = { passed: true, checks: results.length };
+    } catch (error) {
+        results.push('FAIL: ' + error.message);
+        window.testResult = { passed: false, error: error.message };
+    } finally {
+        win.open = originalOpen;
+        document.getElementById('results').textContent = results.join('\n');
+    }
+});
+</script>
+</html>
